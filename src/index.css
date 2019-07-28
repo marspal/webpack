@@ -1,0 +1,7 @@
+@import "./a.css";
+
+body {
+  background: red;
+  transform: rotate(45deg);
+  box-sizing:border-box;
+}

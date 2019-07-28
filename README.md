@@ -53,9 +53,9 @@ webpack 4.0 blog
       mode: 'development',
       entry: "./src/index.js", // 可以写相对路径
       output: {
-        filename: 'bundle.js', // 文件名
-        path: path.resolve(__dirname, 'dist')// 目标路径, 绝对路径
-      }
+        filename: 'bundle.js', // 文件名 加上hash  'build.[hash].js' 'build.[hash:8].js' 八位hash 
+        path: path.resolve(__dirname, 'build')// 目标路径, 绝对路径
+      },
     };
   ```
   打包后的文件
@@ -123,6 +123,134 @@ webpack 4.0 blog
     }
   ```
 - 模板文件打包到内存中(解决dev index.html不存在的问题)
+
+  1. 安装webpack插件:  html-webpack-plugin
+  2. 配置: 
+  
+  ```js
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+      filename: 'index.html',
+      minify: {
+        removeAttributeQuotes: true, // 删除属性的双引号
+        collapseWhitespace: true, // 变成一行
+      },
+      hash: true // 加上hash戳: src=bundle.js?c734048219a94c0495b2
+    })
+  ```
+
+- 样式配置
+  ``说明:`` 多个loader 需要[], loader执行顺序默认是从右向左、从下到上
+  1. 解析css文件:  npm i css-loader style-loader -D
+  ```
+    1. css-loader: 解析@import、路径等语法
+    2. style-loader: 把css插入到head的标签中, loader的特点: 单一
+  ```
+  ```js
+    {
+      test: /\.css$/,
+      use: [
+        {
+          loader: 'style-loader',
+          options: {
+            insertAt: 'top', // default: bottom
+            singleton: true // 合成一个style 标签
+          }
+        },
+        'css-loader'
+      ]
+    }
+  ```
+
+  2. 处理less文件: npm i less-loader less -D, less-loader调用less中的方法
+  ```js
+  { // less
+    test: /\.less$/,
+    use: [
+      {
+        loader: 'style-loader',
+        options: {
+          insertAt: 'top',
+          singleton: true 
+        }
+      },
+      'css-loader',
+      'less-loader'
+    ]
+  }
+  
+  ```
+
+  3. 处理sass文件: sass-loader node-sass
+
+  4. 处理stylus文件: stylus stylus-loader
+
+  5. 进阶配置: 抽离css样式 npm install --save-dev mini-css-extract-plugin
+
+  ```js
+    const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // 引入插件
+
+    new MiniCssExtractPlugin({ // 要打包多个css文件, 创建多个对象 
+      filename: 'main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
+    })
+
+    // module rules
+    { // 规则 抽离css
+      test: /\.css$/,
+      use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader'
+      ]
+    }
+
+    { // less 抽离less
+      test: /\.less$/,
+      use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader',
+        'less-loader'
+      ]
+    }
+  ```
+
+  6. 自动加前缀: autoprefixer postcss-loader
+
+  ```js
+    { // less 抽离less
+      test: /\.less$/,
+      use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader',
+        'postcss-loader',
+        'less-loader'
+      ]
+    }
+  ```
+  配置文件: postcss.config.js 不知道为啥不生效?
+  ```js
+  module.exports = {
+    plugins: [require('autoprefixer')]
+  }
+  ```
+  7. 压缩css : npm i optimize-css-assets-webpack-plugin -D
+  ```js
+  const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+  optimization: {
+    minimizer: [new OptimizeCssAssetsPlugin({})], // 
+  },
+  // 解决js 不能压缩的文件 minimizer: 数组中添加un
+  // npm install uglifyjs-webpack-plugin --save-dev
+
+  minimizer: [new UglifyJsPlugin({
+      cache: true, // 是否用缓存
+      parallel: true, // 并发打包
+      sourceMap: true, // 源码映射
+    }),new OptimizeCssAssetsPlugin({})],
+  },
+  ```
+
+  ``注意:`` 能不能less 打一个文件  css的打一个文件？
+
 #### 高级配置
 
 
