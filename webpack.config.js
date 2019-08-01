@@ -12,14 +12,14 @@ module.exports = {
     open: true, // 自动打开浏览器
     compress: true, // gzip压缩
   },
-  optimization: {
-    minimizer: [new UglifyJsPlugin({
-      cache: true, // 是否用缓存
-      parallel: true, // 并发打包
-      sourceMap: true, // 源码映射
-    }),new OptimizeCssAssetsPlugin({})],
-  },
-  mode: 'production',
+  // optimization: {
+  //   minimizer: [new UglifyJsPlugin({
+  //     cache: true, // 是否用缓存
+  //     parallel: true, // 并发打包
+  //     sourceMap: true, // 源码映射
+  //   }),new OptimizeCssAssetsPlugin({})],
+  // },
+  mode: 'development',
   entry: "./src/index.js", // 可以写相对路径
   output: {
     filename: 'bundle.js', // 文件名 加上hash  'build.[hash].js' 'build.[hash:8].js' 八位hash 
@@ -31,7 +31,7 @@ module.exports = {
       filename: 'index.html'
     }),
     new MiniCssExtractPlugin({
-      filename: 'main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
+      filename: 'css/main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
     })
   ],
   module: { // 模块
@@ -50,6 +50,23 @@ module.exports = {
         'css-loader',
         'postcss-loader',
       ]
+    },{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      include: path.resolve(__dirname, 'src'),
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets:[
+            "@babel/env"
+          ],
+          plugins: [
+            ["@babel/plugin-proposal-decorators", { "legacy": true }],
+            "@babel/plugin-proposal-class-properties",
+            "@babel/plugin-transform-runtime"
+          ]
+        }
+      },
     }]
   }
 };

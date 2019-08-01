@@ -226,10 +226,10 @@ webpack 4.0 blog
       ]
     }
   ```
-  配置文件: postcss.config.js 不知道为啥不生效?
+  配置文件: postcss.config.js;
   ```js
   module.exports = {
-    plugins: [require('autoprefixer')]
+    require('autoprefixer')({ browsers: 'last 2 versions' })
   }
   ```
   7. 压缩css : npm i optimize-css-assets-webpack-plugin -D
@@ -251,6 +251,44 @@ webpack 4.0 blog
 
   ``注意:`` 能不能less 打一个文件  css的打一个文件？
 
+- 转es6语法 babel-loader @babel/core @babel/preset-env(转换模块)
+
+1. 箭头函数等
+```js
+    {
+      test: /\.js$/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets:[
+            "@babel/env"
+          ],
+          plugins: [
+            ["@babel/plugin-proposal-decorators", { "legacy": true }],
+            "@babel/plugin-proposal-class-properties"
+          ]
+        }
+      },
+    }
+```
+2. @babel/plugin-proposal-class-properties 转换定义的属性a
+
+```js
+class A {
+  a = 1;
+}
+```
+
+3. 转化@ decorator语法 "@babel/plugin-proposal-decorators
+
+4. 提取_classCallCheck 公共函数, 打包*函数, *函数(Promise)内置的api, 并不转化, 需要内置regeneratorRuntime;  @babel/plugin-transform-runtime -D  @babel/runtime -S
+配置中加上exclude: /node_modules/,include: path.resolve(__dirname, 'src'),
+
+
+```
+regeneratorRuntime is not defined
+```
+5. "aaa".includes("a") @babal/polyfill
 #### 高级配置
 
 
