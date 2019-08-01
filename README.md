@@ -11,7 +11,7 @@ webpack 4.0 blog
 ##### 安装webpack
 
 - 安装本地配置
-- 安装webpack, webpack webpack-li(4.0以上需要) -D
+- 安装webpack,  webpack-cli(4.0以上需要) -D
 
 ##### webpack 可以进行零配置(比较弱)
 
@@ -144,7 +144,7 @@ webpack 4.0 blog
   1. 解析css文件:  npm i css-loader style-loader -D
   ```
     1. css-loader: 解析@import、路径等语法
-    2. style-loader: 把css插入到head的标签中, loader的特点: 单一
+    2. style-loader: 把css插入到head的标签中, loader的特点: 单一职责
   ```
   ```js
     {
