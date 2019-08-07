@@ -478,10 +478,143 @@ regeneratorRuntime is not defined
 
 - dllPlugin
 
+1. 安装 react react-dom @babel/preset-react(解析react)
+  ```js
+  presets:[
+    "@babel/env",
+    "@babel/preset-react"
+  ],
+  ```
+  单独打包react react-dom 
+  
+  测试
+  ```js
+  const path = require("path");
+  module.exports = {
+      mode: 'development',
+      entry: "./src/test.js",
+      output: {
+          filename: '[name].js',
+          path: path.resolve(__dirname, 'dist'),
+          library: "ab", // 打包文件加变量名
+          libraryTarget: 'this' // 目标格式: var(默认) commonjs umd(统一资源模块) this
+      }
+  }
+  ```
+
+  react react-dom
+  ```js
+  const path = require("path");
+  const webpack = require("webpack");
+  module.exports = {
+      mode: 'development',
+      entry: {
+          react: ['react', 'react-dom']
+      },
+      output: {
+          filename: '_dll_[name].js',
+          path: path.resolve(__dirname, 'build'),
+          library: "_dll_[name]", // 打包文件加变量名
+          // libraryTarget: 'var' // 目标格式: var(默认) commonjs umd(统一资源模块) this
+      },
+      plugins: [
+          new webpack.DllPlugin({
+              name: "_dll_[name]",
+              path: path.resolve(__dirname, 'build', 'manifest.json')
+          })
+      ]   
+  }
+  ```
+
+  引入html
+  <script src="/_dll_react.js"></script>
+
+  引入dll
+  ```js
+  new Webpack.DllReferencePlugin({
+    manifest: path.resolve(__dirname, 'dist', "manifest.json")
+  }),
+  ```
 - webpack自带优化
+  
+  1. import语法在生产环境下 自动去掉没有的代码 tree-shaking
+  require不支持tree-shaking
+  
+  2. 作用域提升
+  ```js
+    let a = 1, b = 2, c = 3, d = a+b+c; console.log(d)
+  ```
+  生产环境最终编译d = 1+2+3;
+
 
 - 抽离公共代码
 
+  多个页面中: 多次引用
+  ```js
+    // webpack 配置
+    optimization: {
+      splitChunks: { // 分割代码块
+        cacheGroups: {// 缓存组
+          common: { // 公共模块
+            minSize: 0, // 字节数
+            minChunks: 2, //引入次数 2次以上
+            chunks: 'initial', // 开始文件
+          },
+          vendor: { // 第三方
+            priority: 1, // 权重
+            test: /node_modules/,
+            chunks: 'initial',
+            minSize: 0,
+            minChunks: 2,
+          }
+        }
+      }
+    }
+  ```
+
+  解决第三方模块 jquery的问题 同上 配置
+
+
 - 懒加载
 
+```js
+  let button = document.createElement("button");
+      button.innerHTML = "test"
+
+  // vue懒加载 react 懒加载
+  button.addEventListener('click', function(){
+    // es6 草案中的语法, jsonp实现动态加载文件
+    // console.log("click"); promise
+    import("./source.js").then(data => {
+      console.log(data.default)
+    });
+  })
+
+  document.body.appendChild(button)
+```
+
 - 热更新
+
+```js
+  devServer:{ // 开发配置
+    port: 3000,
+    progress: true, // 进度条
+    contentBase: './build', // 这个目录静态服务
+    open: true, // 自动打开浏览器
+    compress: true, // gzip压缩
+    hot: true, // 启用热更新
+  }, 
+
+  new Webpack.NamedModulesPlugin(), // 告诉那个文件更新了, 打印更新的模块路径
+  new Webpack.HotModuleReplacementPlugin() // 支持热更新组件, 热更新插件
+
+  import str from './source.js';
+  console.log(str, '===')
+  if(module.hot){
+    module.hot.accept('./source.js', () => {
+      console.log('更新了');
+      let str = require("./source.js");
+      console.log(str, '==ss');
+    });
+  }
+```

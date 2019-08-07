@@ -10,6 +10,7 @@ module.exports = {
     contentBase: './build', // 这个目录静态服务
     open: true, // 自动打开浏览器
     compress: true, // gzip压缩
+    hot: true, // 启用热更新
   }, 
   mode: 'development',
   entry: "./src/index.js", // 可以写相对路径
@@ -25,7 +26,9 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
     }),
-    new Webpack.IgnorePlugin(/\.\/locale/, /moment/)
+    new Webpack.IgnorePlugin(/\.\/locale/, /moment/),
+    new Webpack.NamedModulesPlugin(), // 告诉那个文件更新了
+    new Webpack.HotModuleReplacementPlugin() // 支持热更新组件
   ],
   module: { // 模块
     rules: [{
@@ -41,12 +44,6 @@ module.exports = {
           publicPath: 'http://www.baidu.com',
         }
       }
-    },{
-      test: require.resolve('jquery'),
-      use: [{
-        loader: 'expose-loader',
-        options: '$'
-      }]      
     },{ // less
       test: /\.less$/,
       use: [
@@ -70,7 +67,8 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           presets:[
-            "@babel/env"
+            "@babel/env",
+            "@babel/preset-react"
           ],
           plugins: [
             ["@babel/plugin-proposal-decorators", { "legacy": true }],
