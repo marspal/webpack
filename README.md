@@ -289,8 +289,199 @@ class A {
 regeneratorRuntime is not defined
 ```
 5. "aaa".includes("a") @babal/polyfill
-#### 高级配置
+
+- 处理js语法及校验
+
+1. npm install eslint eslint-loader --save-dev 下载[.eslintrc.json](https://eslint.org/demo)
+   注意: npm install babel-eslint --save-dev babel-eslint支持新属性
+```js
+  {
+    enforce: "pre",
+    test: /\.js$/,
+    exclude: /node_modules/,
+    use: 'eslint-loader',
+    include: path.resolve(__dirname, 'src')
+  }
+```
+
+- 全局变量引入问题
+
+1. 安装jquery, expose-loader 暴露全局loader; 
+   说明: loader分类: pre  normal 内联loader(代码中使用) 后置
+
+```js
+  import $ from 'jquery';
+  console.log($)  // 问题取window.$ undefined
+
+  import $$ from 'expose-loader?$!jquery';
+  console.log(window.$, '===')
+  console.log($$)
+```
+```js
+  {
+    test: require.resolve('jquery'),
+    use: [{
+      loader: 'expose-loader',
+      options: '$'
+    }]
+  }  
+```
+
+  给每一个模块中注入$
+  ```js
+    new webpack.ProvidePlugin({
+      '$': 'jquery'
+    })
+  ```
+
+  模板文件中引入: jquery cdn https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js
+  代码中也引入import $ from jquery
+
+  配置externals 属性: 防止将某些 import 的包(package)打包到 bundle 中
+  ```js
+    externals: {
+      jquery: 'jQuery'
+    }
+  ```
 
 
-#### webpack优化策略
+- 图片配置
 
+  - 3种引入图片的方式
+  1. js中创建图片来引入
+  2. css中来引入 background
+  3. html<img src=""/> 
+
+  - 所需loader
+
+  1. file-loader: 默认内部生成一种图片到build目录下，把生成图片的名字返回回来
+  ```js
+    import logo from './123.jpg'; // 返回结果是新的图片
+    let image = new Image();
+    image.src = logo
+    document.body.appendChild(image);
+  ```
+  ```
+    {
+      test: /\.(png|jpg|gif)$/,
+      use: 'file-loader'
+    }
+  ```
+  2. css-loader自己解析
+  ```css
+    body{
+      background: url("./123.jpg")
+    }
+  ```
+  3. html引入 npm install html-withimg-loader --save
+
+  4. base64 直接用url-loader file-loader升级版,做一个限制
+
+  ```js
+    {
+      test: /\.(png|jpg|gif)$/,
+      use: {
+        loader: 'url-loader',
+        options: {
+          limit: 200 * 1024
+        }
+      }
+    }
+  ```
+
+- 文件分类
+
+  options中 outputPath: 'img/' publicPath加上cdn
+
+  ```js
+    test: /\.(png|jpg|gif)$/,
+      use: {
+        loader: 'url-loader',
+        options: {
+          limit: 1,
+          outputPath: '/img/',
+          publicPath: 'http://www.baidu.com',
+        }
+      }
+  ```
+
+- 打包多页应用
+
+```js
+  entry: {
+    index: "./src/index.js",
+    home: "./src/home.js",
+  }, // 可以写相对路径
+  output: {
+    filename: '[name].js', // 文件名 加上hash  'build.[hash].js' 'build.[hash:8].js' 八位hash 
+    path: path.resolve(__dirname, 'build')// 目标路径, 绝对路径
+  },
+  new HtmlWebpackPlugin({
+    template: './src/index.html',
+    filename: 'index.html',
+    chunks: ['index'] // 代码块
+  }),
+  new HtmlWebpackPlugin({
+    template: './src/index.html',
+    filename: 'home.html',
+    chunks: ['home','index'] // 代码块
+  }),
+```
+
+- watch的应用
+
+```js
+  watch: true,
+  watchOptions: {
+    poll: 1000,
+    aggregateTimeout: 500,
+    ignored: /node_modules/
+  },
+```
+
+- webpack小插件应用
+
+1. cleanWebpackPlugin、copyWebpackPlugin(拷贝静态文件)、bannerPlugin(webpack内置)
+
+- resolve 属性的配置
+
+
+- 定义环境变量
+
+- 区分不同的环境
+
+#### webpack优化
+
+- noParse
+  module: {
+    noParse: /jquery/  // 不去解析jquery 中的依赖项
+  }
+
+- ignorePlugin webpack.IgnorePlugin
+  {
+    test: '',
+    exclude: '',
+    include: ''
+  };
+
+  解析moment
+  ```js
+    import moment from 'moment';
+    moment.locale('zh-cn');
+    console.log(moment().endOf('day').fromNow())
+  ```
+  ```js
+    // 手动引入
+    import 'moment/locale/zh-cn'
+    new Webpack.IgnorePlugin(/\.\/locale/, /moment/)
+  ```
+
+- dllPlugin
+
+- webpack自带优化
+
+- 抽离公共代码
+
+- 懒加载
+
+- 热更新

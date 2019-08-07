@@ -2,8 +2,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const Webpack = require("webpack");
 module.exports = {
   devServer:{ // 开发配置
     port: 3000,
@@ -11,18 +10,11 @@ module.exports = {
     contentBase: './build', // 这个目录静态服务
     open: true, // 自动打开浏览器
     compress: true, // gzip压缩
-  },
-  // optimization: {
-  //   minimizer: [new UglifyJsPlugin({
-  //     cache: true, // 是否用缓存
-  //     parallel: true, // 并发打包
-  //     sourceMap: true, // 源码映射
-  //   }),new OptimizeCssAssetsPlugin({})],
-  // },
+  }, 
   mode: 'development',
   entry: "./src/index.js", // 可以写相对路径
   output: {
-    filename: 'bundle.js', // 文件名 加上hash  'build.[hash].js' 'build.[hash:8].js' 八位hash 
+    filename: 'build.js', // 文件名 加上hash  'build.[hash].js' 'build.[hash:8].js' 八位hash 
     path: path.resolve(__dirname, 'build')// 目标路径, 绝对路径
   },
   plugins: [
@@ -32,10 +24,30 @@ module.exports = {
     }),
     new MiniCssExtractPlugin({
       filename: 'css/main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
-    })
+    }),
+    new Webpack.IgnorePlugin(/\.\/locale/, /moment/)
   ],
   module: { // 模块
-    rules: [{ // less
+    rules: [{
+      test: /\.html$/,
+      use: 'html-withimg-loader'
+    },{
+      test: /\.(png|jpg|gif)$/,
+      use: {
+        loader: 'url-loader',
+        options: {
+          limit: 1,
+          outputPath: '/img/',
+          publicPath: 'http://www.baidu.com',
+        }
+      }
+    },{
+      test: require.resolve('jquery'),
+      use: [{
+        loader: 'expose-loader',
+        options: '$'
+      }]      
+    },{ // less
       test: /\.less$/,
       use: [
         MiniCssExtractPlugin.loader,
