@@ -448,7 +448,11 @@ regeneratorRuntime is not defined
 
 - 定义环境变量
 
+  webpack.DefinePlugin
+
 - 区分不同的环境
+
+  webpack-merge
 
 #### webpack优化
 
