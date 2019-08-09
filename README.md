@@ -36,7 +36,7 @@ webpack 4.0 blog
 
 ##### 手动配置
 
-- 默认:webpack.config.js or webpackfile.js; 其它名字cli: npx webpack --config webpack.config.my.js
+- 默认: webpack.config.js or webpackfile.js; 其它名字cli: npx webpack --config webpack.config.my.js
   ```js
     {
       type: "string",
@@ -140,7 +140,9 @@ webpack 4.0 blog
   ```
 
 - 样式配置
+
   ``说明:`` 多个loader 需要[], loader执行顺序默认是从右向左、从下到上
+
   1. 解析css文件:  npm i css-loader style-loader -D
   ```
     1. css-loader: 解析@import、路径等语法
@@ -229,7 +231,7 @@ webpack 4.0 blog
   配置文件: postcss.config.js;
   ```js
   module.exports = {
-    require('autoprefixer')({ browsers: 'last 2 versions' })
+    plugins: [require('autoprefixer')()]
   }
   ```
   7. 压缩css : npm i optimize-css-assets-webpack-plugin -D
