@@ -443,7 +443,60 @@ regeneratorRuntime is not defined
 
 1. cleanWebpackPlugin、copyWebpackPlugin(拷贝静态文件)、bannerPlugin(webpack内置)
 
+- webpack 跨域问题:
+
+1. 配置http-proxy: 
+```js
+  // 1 代理
+  proxy: {
+    // '/api': 'https://www.localhost:3000/' 
+    '/api': {
+      target: 'http://localhost:3000',
+      pathRewrite: {'/api': ''}
+    }
+  }
+
+  // 2. 单纯模拟数据
+  before(app){
+    app.get('/user', (res,res,next) => {
+      res.json({name: 'aa'})
+    })
+  }
+
+  
+```
+```js
+  // 3.有服务端, 不想用代理, 在服务端启动webpack, 用服务端的port
+ let express = require("express");
+ let app = express();
+ let webpack = require("webpack");
+ 
+ // 中间件
+ let middle = require("webpack-dev-middleware");
+ let config = require("./webpack.config.js");
+ let complier = webpack(config);
+
+ app.use(middle(complier));
+
+ app.get("/user", (req,res) => {
+   res.json({'aaa'});
+ })
+ app.listen(3000)
+```
+
 - resolve 属性的配置
+
+```js
+  resolve: {
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+    alias: { // 别名
+      'bootstrap': 'bootstrap/dist/css/bootstrap.css'
+    },
+    mainFields: ['style', 'main'] , // 主入口文件
+    mainFiles: '', // 入口文件的名字 默认index.js
+    extensions: ['.less']
+  }
+```
 
 
 - 定义环境变量

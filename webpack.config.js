@@ -22,13 +22,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: 'index.html'
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'css/main.css', // 文件名, 选定需要抽离的目标文件(less、css)等
-    }),
-    new Webpack.IgnorePlugin(/\.\/locale/, /moment/),
-    new Webpack.NamedModulesPlugin(), // 告诉那个文件更新了
-    new Webpack.HotModuleReplacementPlugin() // 支持热更新组件
+    })
   ],
   module: { // 模块
     rules: [{
