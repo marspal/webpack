@@ -676,3 +676,20 @@ regeneratorRuntime is not defined
     });
   }
 ```
+
+#### tapable
+
+- sync*
+  - SyncHook
+  - SyncBailHook
+  - SyncWaterfallHook
+  - SyncLoopHook
+
+- Async*
+  - AsyncParallel*
+    - AsyncParallelHook,
+	  - AsyncParallelBailHook,
+  - AsyncSeries*
+    - AsyncSeriesHook,
+	  - AsyncSeriesBailHook,
+	  - AsyncSeriesWaterfallHook
