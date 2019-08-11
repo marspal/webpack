@@ -344,7 +344,6 @@ regeneratorRuntime is not defined
     }
   ```
 
-
 - 图片配置
 
   - 3种引入图片的方式
