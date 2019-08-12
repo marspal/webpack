@@ -1,29 +1,35 @@
-class SyncLoopHook{
-    constructor(args){
+class AsyncSeriesWaterfallHook{
+    constructor(){
         this.tasks = [];
     }   
-    tap(name, task){
+    tapPromise(name, task){
         this.tasks.push(task)
     }
-    call(...args){
-        this.tasks.forEach(task => {
-            let ret;
-            do{
-                ret = task(...args);
-            }while(ret !== undefined)
-        });
+    callPromise(...args){
+     
     }
 }
 
-let hook = new SyncLoopHook(['name']);
-let index = 0;
-hook.tap('react',(name) => {
-    console.log('react '+ name);
-    ++index
-    return index === 3? undefined : "react学的好";
+let hook = new AsyncSeriesWaterfallHook(['name']);
+hook.tapPromise('react',(name, next) => {
+    setTimeout(()=>{
+        console.log('react ', name)  
+        next('error', "react data");
+    },1000)
 });
-hook.tap('node',(name) => {
-    console.log('node '+ name);
+hook.tapPromise('node',(data, next) => {
+    setTimeout(()=>{
+        console.log('node ', data)  
+        next();
+    },1000)
+});
+hook.tapPromise('webpack',(data, next) => {
+    setTimeout(()=>{
+        console.log('webpack ', data)   
+        next();
+    },1000)
 });
 
-hook.call('JW');
+hook.callPromise('JW').then(()=>{
+    console.log("end");
+});
